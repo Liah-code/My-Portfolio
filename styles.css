@@ -1,0 +1,11 @@
+:root {
+  /* Color tokens used by the HTML via Tailwind arbitrary values */
+  --cream-color: #FFFBF5;
+  --text-color: #374151;
+  --maroon-color: #b70569;
+  --maroon-dark: #99044f;
+  --header-bg: #f7e6f04d;
+  --accent-color: #FDF2F8;
+  --primary-color: #2D2926;
+}
+
