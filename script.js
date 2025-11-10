@@ -1,55 +1,51 @@
-// Intersection Observer for section animations
-const observerOptions = {
-  root: null,
-  rootMargin: '0px',
-  threshold: 0.1
-};
-
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('visible');
-    }
-  });
-}, observerOptions);
-
-// Observe all sections
-document.querySelectorAll('section').forEach(section => {
-  observer.observe(section);
-});
-
-// Mobile menu toggle
+// Mobile menu elements
 const menuBtn = document.getElementById('menu-btn');
 const mobileMenu = document.getElementById('mobile-view');
 const menuIcon = menuBtn.querySelector('.fa-bars');
 const closeIcon = menuBtn.querySelector('.fa-xmark');
 
+// Function to close mobile menu
+function closeMobileMenu() {
+  mobileMenu.style.opacity = '0';
+  mobileMenu.style.visibility = 'hidden';
+  menuBtn.setAttribute('aria-expanded', 'false');
+  menuIcon.classList.remove('hidden');
+  closeIcon.classList.add('hidden');
+}
+
+// Function to open mobile menu
+function openMobileMenu() {
+  mobileMenu.style.opacity = '1';
+  mobileMenu.style.visibility = 'visible';
+  menuBtn.setAttribute('aria-expanded', 'true');
+  menuIcon.classList.add('hidden');
+  closeIcon.classList.remove('hidden');
+}
+
+// Toggle mobile menu
 menuBtn.addEventListener('click', () => {
   const isExpanded = menuBtn.getAttribute('aria-expanded') === 'true';
-  menuBtn.setAttribute('aria-expanded', !isExpanded);
-  
   if (isExpanded) {
-    // Close menu
-    mobileMenu.style.opacity = '0';
-    mobileMenu.style.visibility = 'hidden';
+    closeMobileMenu();
   } else {
-    // Open menu
-    mobileMenu.style.opacity = '1';
-    mobileMenu.style.visibility = 'visible';
+    openMobileMenu();
   }
-  
-  menuIcon.classList.toggle('hidden');
-  closeIcon.classList.toggle('hidden');
 });
 
 // Close mobile menu when clicking on a link
 document.querySelectorAll('#mobile-view a').forEach(link => {
-  link.addEventListener('click', () => {
-    mobileMenu.style.opacity = '0';
-    mobileMenu.style.visibility = 'hidden';
-    menuBtn.setAttribute('aria-expanded', 'false');
-    menuIcon.classList.remove('hidden');
-    closeIcon.classList.add('hidden');
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const targetId = link.getAttribute('href');
+    const targetElement = document.querySelector(targetId);
+    
+    closeMobileMenu();
+    
+    if (targetElement) {
+      setTimeout(() => {
+        targetElement.scrollIntoView({ behavior: 'smooth' });
+      }, 300); // Small delay to allow menu animation to complete
+    }
   });
 });
 
@@ -76,34 +72,30 @@ form.addEventListener('submit', async (e) => {
 // Update copyright year
 document.getElementById('year').textContent = new Date().getFullYear();
 
-// Add initial animations to elements
+// Initialize AOS
 document.addEventListener('DOMContentLoaded', () => {
-  // Add fade-in animation to hero section
-  const heroSection = document.querySelector('#home');
-  heroSection.classList.add('animate-fade-in');
-  
-  // Add slide-in animation to navigation
-  const navLinks = document.querySelectorAll('.nav-link');
-  navLinks.forEach((link, index) => {
-    link.style.animationDelay = `${index * 0.1}s`;
-    link.classList.add('animate-slide-in');
+  AOS.init({
+    once: true,
+    offset: 200,
+    duration: 800,
+    easing: 'ease-in-out'
   });
 });
 
-// Smooth scroll for navigation links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function (e) {
-    e.preventDefault();
-    const target = document.querySelector(this.getAttribute('href'));
-    if (target) {
-      target.scrollIntoView({
-        behavior: 'smooth'
-      });
-      // Close mobile menu if open
-      mobileMenu.classList.add('hidden');
-      menuIcon.classList.remove('hidden');
-      closeIcon.classList.add('hidden');
-      menuBtn.setAttribute('aria-expanded', 'false');
-    }
-  });
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+  if (
+    mobileMenu.style.visibility === 'visible' &&
+    !mobileMenu.contains(e.target) &&
+    !menuBtn.contains(e.target)
+  ) {
+    closeMobileMenu();
+  }
+});
+
+// Close mobile menu on window resize (in case user switches to desktop view)
+window.addEventListener('resize', () => {
+  if (window.innerWidth >= 768) { // 768px is where the mobile menu switches to desktop
+    closeMobileMenu();
+  }
 });
